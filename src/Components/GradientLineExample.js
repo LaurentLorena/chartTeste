@@ -1,10 +1,18 @@
 
-import React from 'react'
+import React, { Component } from 'react'
 import { Defs, LinearGradient, Stop, Circle, G, Line, Rect, Text } from 'react-native-svg'
 import { LineChart, Grid } from 'react-native-svg-charts'
 import * as shape from 'd3-shape'
 
-class GradientLineExample extends React.PureComponent {
+class GradientLineExample extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            tooltipIndex: 0,
+            tooltipY: 50
+        }
+    }
 
     render() {
 
@@ -12,11 +20,11 @@ class GradientLineExample extends React.PureComponent {
 
         const Tooltip = ({ x, y }) => (
             <G
-                x={x(5) - (75 / 2)}
+                x={x(this.state.tooltipIndex) - (75 / 2)}
                 key={'tooltip'}
                 onPress={() => console.log('tooltip clicked')}
             >
-                <G y={50}>
+                <G y={this.state.tooltipY}>
                     <Rect
                         height={40}
                         width={75}
@@ -32,18 +40,18 @@ class GradientLineExample extends React.PureComponent {
                         textAnchor={'middle'}
                         stroke={'rgb(134, 65, 244)'}
                     >
-                        {`${data[5]}ºC`}
+                        {`R$ ${data[this.state.tooltipIndex]}`}
                     </Text>
                 </G>
                 <G x={75 / 2}>
                     <Line
-                        y1={50 + 40}
-                        y2={y(data[5])}
+                        y1={this.state.tooltipY + 40 > 95 ? this.state.tooltipY : this.state.tooltipY + 40}
+                        y2={y(data[this.state.tooltipIndex])}
                         stroke={'grey'}
                         strokeWidth={2}
                     />
                     <Circle
-                        cy={y(data[5])}
+                        cy={y(data[this.state.tooltipIndex])}
                         r={6}
                         stroke={'rgb(134, 65, 244)'}
                         strokeWidth={2}
@@ -55,15 +63,15 @@ class GradientLineExample extends React.PureComponent {
 
         const Decorator = ({ x, y, data }) => {
             return data.map((value, index) => (
-                index !== 0 && index !== data.length -1 &&
+                index !== 0 && index !== data.length - 1 &&
                 <Circle
-                    key={ index }
-                        cx={ x(index) }
-                    cy={ y(value) }
-                    r={ 4 }
-                    stroke={ 'rgb(134, 65, 244)' }
-                    fill={ 'white' }
-                    onPress={()=>console.log(`decorator ${index} and ${value}`)}
+                    key={index}
+                    cx={x(index)}
+                    cy={y(value)}
+                    r={4}
+                    stroke={'rgb(134, 65, 244)'}
+                    fill={'white'}
+                    onPress={() => { console.log(`decorator ${index} and ${value}`);this.setState({tooltipIndex: index, tooltipY: value + 60 > 95 ? y(value - 60) : y(value + 60) })}}
                 />
             ))
         }
